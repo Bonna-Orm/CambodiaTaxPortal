@@ -36,10 +36,10 @@ func (r *ExportController) ExportPDF(ctx http.Context) http.Response {
 	}
 	for _, sale := range sales {
 		pdf.CellFormat(38, 10, fmt.Sprintf("%v", sale.No), "1", 0, "C", false, 0, "")
-		pdf.CellFormat(38, 10, sale.SaleDate.String(), "1", 0, "C", false, 0, "")
+		pdf.CellFormat(38, 10, sale.Date, "1", 0, "C", false, 0, "")
 		pdf.CellFormat(38, 10, sale.InvoiceNo, "1", 0, "C", false, 0, "")
-		pdf.CellFormat(38, 10, sale.Customer, "1", 0, "C", false, 0, "")
-		pdf.CellFormat(38, 10, fmt.Sprintf("%v", sale.Amount), "1", 0, "C", false, 0, "")
+		pdf.CellFormat(38, 10, sale.CustomerNameKh, "1", 0, "C", false, 0, "")
+		pdf.CellFormat(38, 10, fmt.Sprintf("%v", sale.TotalAmountExclVat), "1", 0, "C", false, 0, "")
 		pdf.Ln(-1)
 	}
 
