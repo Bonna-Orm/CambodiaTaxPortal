@@ -22,5 +22,7 @@ func Web() {
 	facades.Route().Put("/sale/{id}", saleController.Update)
 	facades.Route().Delete("/sale/{id}", saleController.Destroy)
 	facades.Route().Get("/export", controllers.NewExportController().ExportExcel)
-	facades.Route().Get("/export-pdf", controllers.NewExportController().ExportPDF)
+	facades.Route().Get("/dashboard", func(ctx http.Context) http.Response {
+		return ctx.Response().View().Make("dashboard.tmpl", map[string]any{})
+	})
 }

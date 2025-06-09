@@ -23,7 +23,7 @@ func (r *SaleController) Index(ctx http.Context) http.Response {
 		})
 	}
 	//return ctx.Response().Json(http.StatusOK, sales)
-	return ctx.Response().View().Make("Sale.tmpl", map[string]any{
+	return ctx.Response().View().Make("sale.tmpl", map[string]any{
 		"Sales": sales})
 }
 
@@ -85,7 +85,7 @@ func (r *SaleController) CrudPage(ctx http.Context) http.Response {
 	if err := facades.Orm().Query().Find(&sales); err != nil {
 		return ctx.Response().Json(http.StatusInternalServerError, http.Json{"error": "Failed to fetch sales: " + err.Error()})
 	}
-	return ctx.Response().View().Make("crud.tmpl", map[string]any{
+	return ctx.Response().View().Make("sale.tmpl", map[string]any{
 		"Sales": sales,
 	})
 }
@@ -98,7 +98,7 @@ func (r *SaleController) StoreOrDelete(ctx http.Context) http.Response {
 		if err != nil {
 			return ctx.Response().Json(http.StatusInternalServerError, http.Json{"error": "Failed to delete sale: " + err.Error()})
 		}
-		return ctx.Response().Redirect(http.StatusFound, "/crud")
+		return ctx.Response().Redirect(http.StatusFound, "/sale")
 	}
 
 	var sale models.Sale
