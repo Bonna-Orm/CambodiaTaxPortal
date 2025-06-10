@@ -1,4 +1,4 @@
-{{ define "Sale.tmpl" }}
+{{ define "salecrdr.tmpl" }}
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -16,7 +16,7 @@
     <h1 class="text-3xl font-bold mb-6">Cambodia Tax Portal</h1>
     <div class="mb-2 flex items-center justify-between">
       <div>
-        <h2 class="text-2xl font-semibold mb-2">Sales Report</h2>
+        <h2 class="text-2xl font-semibold mb-2">Sales Cr Dr Report</h2>
         <form method="GET" action="/sales" class="space-y-4">
           <div class="flex flex-col sm:flex-row sm:items-center gap-4">
             <div>
@@ -55,7 +55,7 @@
       <div>
         <a
           class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 mr-2"
-          href="/export"
+          href="/export_salecrdr"
           >Export Sales to Excel</a
         >
       </div>
@@ -68,66 +68,66 @@
         <thead class="bg-gray-100">
           <tr>
             <th class="border px-4 py-2 text-left" rowspan="2">No</th>
-            <th class="border px-4 py-2 text-left" rowspan="2">Date</th>
-            <th class="border px-4 py-2 text-left" rowspan="2">
-              Invoice no./customs declaration no.
+            <th class="border px-4 py-2 text-center" colspan="4">customer</th>
+            <th class="border px-4 py-2 text-center" colspan="13">
+              New Invoice Detail Information
             </th>
-            <th class="border px-4 py-2 text-center" colspan="4">Customer</th>
-            <th class="border px-4 py-2 text-left" rowspan="2">
-              <span>Type of goods supplied /</span> <br />
-              <span>services rendered*</span>
-            </th>
-            <th class="border px-4 py-2 text-left" rowspan="2">
-              Total amount include VAT*
-            </th>
-            <th class="border px-4 py-2 text-left" rowspan="2">
-              Total amounht exclude VAT / VAT 0%
-            </th>
-            <th class="border px-4 py-2 text-left" rowspan="2">
-              Specific tax on certain merchandise
-            </th>
-            <th class="border px-4 py-2 text-left" rowspan="2">
-              Specific tax on certain services
-            </th>
-            <th class="border px-4 py-2 text-left" rowspan="2">
-              Public Lighting Tax
-            </th>
-            <th class="border px-4 py-2 text-left" rowspan="2">
-              Accommodation Tax
-            </th>
-            <th class="border px-4 py-2 text-left" rowspan="2">
-              Prepayment of Tax on Income Rate
-            </th>
-            <th class="border px-4 py-2 text-left" rowspan="2">Sector</th>
-            <th class="border px-4 py-2 text-left" rowspan="2">
-              Treasury credit note no.
-            </th>
-            <th class="border px-4 py-2 text-left" rowspan="2">Description*</th>
-            <th class="border px-4 py-2 text-left" rowspan="2">Create At</th>
-            <th class="border px-4 py-2 text-left" rowspan="2">Update At</th>
           </tr>
           <tr>
+            <th class="border px-4 py-2 text-left">Date</th>
+            <th class="border px-4 py-2 text-left">
+              Invoice no./customs declaration no.*
+            </th>
             <th class="border px-4 py-2 text-left">Type of customer*</th>
-            <th class="border px-4 py-2 text-left">Tax identification no.</th>
-            <th class="border px-4 py-2 text-left">Name (Khmer)</th>
-            <th class="border px-4 py-2 text-left">Name (Latin)</th>
+            <th class="border px-4 py-2 text-left">Tax identification no.*</th>
+            <th class="border px-4 py-2 text-left">
+              <span>Type of adjustment*</span>
+            </th>
+            <th class="border px-4 py-2 text-left">Date*</th>
+            <th class="border px-4 py-2 text-left">Credit/ Debit Note no.*</th>
+            <th class="border px-4 py-2 text-left">
+              Total amount include VAT*
+            </th>
+            <th class="border px-4 py-2 text-left">
+              Total amount exclude VAT / VAT 0%
+            </th>
+            <th class="border px-4 py-2 text-left">
+              Specific Tax on certain merchandise
+            </th>
+            <th class="border px-4 py-2 text-left">
+              Specific on certain services
+            </th>
+            <th class="border px-4 py-2 text-left">Public Lighting Tax</th>
+            <th class="border px-4 py-2 text-left">Accommodation Tax</th>
+            <th class="border px-4 py-2 text-left">
+              Prepayment of Tax on Income Rate
+            </th>
+            <th class="border px-4 py-2 text-left">Description*</th>
+            <th class="border px-4 py-2 text-left">Create At</th>
+            <th class="border px-4 py-2 text-left">Update At</th>
           </tr>
         </thead>
         <tbody>
           {{
-            range.Sales
+            range.SaleCrDrs
           }}
           <tr>
             <td class="border px-4 py-2 text-center">{{ .No }}</td>
-            <td class="border px-4 py-2 text-center">{{.Date}}</td>
-            <td class="border px-4 py-2 text-center">{{ .InvoiceNo }}</td>
-            <td class="border px-4 py-2 text-center">{{ .TypeOfCustomer }}</td>
+            <td class="border px-4 py-2 text-center">{{.InvoiceNo}}</td>
+            <td class="border px-4 py-2 text-center">{{ .DateCrDr }}</td>
+            <td class="border px-4 py-2 text-center">{{ .TypeOfSupplier }}</td>
             <td class="border px-4 py-2 text-center">
               {{ .TaxIdentificationNo }}
             </td>
-            <td class="border px-4 py-2 text-center">{{ .CustomerNameKh }}</td>
-            <td class="border px-4 py-2 text-center">{{ .CustomerName }}</td>
-            <td class="border px-4 py-2 text-center">{{ .TypeOfGoods }}</td>
+            <td class="border px-4 py-2 text-center">
+              {{ .TypeOfAdjustment }}
+            </td>
+            <td class="border px-4 py-2 text-center">
+              {{ .DateOfAdjustment }}
+            </td>
+            <td class="border px-4 py-2 text-center">
+              {{ .CreditDebitNoteNo}}
+            </td>
             <td class="border px-4 py-2 text-center">
               {{ .TotalAmountInclVat }}
             </td>
@@ -148,10 +148,6 @@
             </td>
             <td class="border px-4 py-2 text-center">
               {{ .PrepaymentOfTaxOnIncomeRate }}
-            </td>
-            <td class="border px-4 py-2 text-center">{{ .Sector }}</td>
-            <td class="border px-4 py-2 text-center">
-              {{ .TreasuryCreditNoteNo }}
             </td>
             <td class="border px-4 py-2 text-center">{{ .Description }}</td>
             <td class="border px-4 py-2 text-center">{{ .CreatedAt }}</td>

@@ -25,4 +25,9 @@ func Web() {
 	facades.Route().Get("/dashboard", func(ctx http.Context) http.Response {
 		return ctx.Response().View().Make("dashboard.tmpl", map[string]any{})
 	})
+
+	saleCrDrController := controllers.NewSaleCrDrController()
+	facades.Route().Get("/salecrdr", saleCrDrController.Index)
+	facades.Route().Post("/salecrdr", saleCrDrController.Store)
+	facades.Route().Get("/export_salecrdr", controllers.NewSaleCrDrExportController().SaleCrDrExportExcel)
 }
