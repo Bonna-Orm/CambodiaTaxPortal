@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"CambodiaTaxPortal/app/models"
 	"bytes"
 	"fmt"
 	"time"
@@ -8,8 +9,6 @@ import (
 	"github.com/goravel/framework/contracts/http"
 	"github.com/goravel/framework/facades"
 	"github.com/xuri/excelize/v2"
-
-	"CambodiaTaxPortal/app/models"
 )
 
 type SaleCrDrExportController struct{}
@@ -19,14 +18,60 @@ func NewSaleCrDrExportController() *ExportController {
 }
 
 func (r *ExportController) SaleCrDrExportExcel(ctx http.Context) http.Response {
+	start_date := ctx.Request().Query("start_date")
+	end_date := ctx.Request().Query("end_date")
 
 	var salecrdrs []models.SaleCrDr
-	if err := facades.Orm().Query().Find(&salecrdrs); err != nil {
+	query := facades.Orm().Query()
+
+	// Optional: Validate date format
+	const layout = "2006-01-02"
+	if start_date != "" {
+		if _, err := time.Parse(layout, start_date); err != nil {
+			return ctx.Response().Status(400).Json(http.Json{
+				"error": "Invalid start date format. Use YYYY-MM-DD.",
+			})
+		}
+	}
+
+	if end_date != "" {
+		if _, err := time.Parse(layout, end_date); err != nil {
+			return ctx.Response().Status(400).Json(http.Json{
+				"error": "Invalid end date format. Use YYYY-MM-DD.",
+			})
+		}
+	}
+
+	// Filter by date if provided
+	if start_date != "" && end_date != "" {
+		query = query.Where("date_cr_dr >= ? AND date_cr_dr <= ?", start_date, end_date)
+	} else if start_date != "" {
+		query = query.Where("date_cr_dr >= ?", start_date)
+	} else if end_date != "" {
+		query = query.Where("date_cr_dr <= ?", end_date)
+	}
+	if err := query.Get(&salecrdrs); err != nil {
 		return ctx.Response().Status(500).Json(http.Json{
 			"message": "Failed to fetch sales",
 			"error":   err.Error(),
 		})
 	}
+	if len(salecrdrs) == 0 {
+		return ctx.Response().Status(404).Json(http.Json{
+			"message": "No sales found for the given date range",
+		})
+	}
+
+	// Test Return Data Json with Postman
+	//return ctx.Response().Json(http.StatusOK, salecrdrs)
+
+	// var salecrdrs []models.SaleCrDr
+	// if err := facades.Orm().Query().Find(&salecrdrs); err != nil {
+	// 	return ctx.Response().Status(500).Json(http.Json{
+	// 		"message": "Failed to fetch sales",
+	// 		"error":   err.Error(),
+	// 	})
+	// }
 
 	file := excelize.NewFile()
 	index, err := file.NewSheet("Sheet1")

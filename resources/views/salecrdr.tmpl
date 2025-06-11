@@ -16,8 +16,8 @@
     <h1 class="text-3xl font-bold mb-6">Cambodia Tax Portal</h1>
     <div class="mb-2 flex items-center justify-between">
       <div>
-        <h2 class="text-2xl font-semibold mb-2">Sales Cr Dr Report</h2>
-        <form method="GET" action="/sales" class="space-y-4">
+        <h2 class="text-2xl font-semibold mb-2">Sales CR DR Report</h2>
+        <form method="GET" action="/salescrdr" class="space-y-4">
           <div class="flex flex-col sm:flex-row sm:items-center gap-4">
             <div>
               <label for="start-date" class="block text-sm font-medium mb-1"
@@ -27,6 +27,7 @@
                 type="date"
                 id="start-date"
                 name="start_date"
+                value="{{ .StartDate }}"
                 class="p-2 border rounded w-full sm:w-64"
               />
             </div>
@@ -39,6 +40,7 @@
                 type="date"
                 id="end-date"
                 name="end_date"
+                value="{{ .EndDate }}"
                 class="p-2 border rounded w-full sm:w-64"
               />
             </div>
@@ -55,7 +57,7 @@
       <div>
         <a
           class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 mr-2"
-          href="/export_salecrdr"
+          href="/export_salecrdr?start_date={{ .StartDate }}&end_date={{ .EndDate }}"
           >Export Sales to Excel</a
         >
       </div>
@@ -113,8 +115,8 @@
           }}
           <tr>
             <td class="border px-4 py-2 text-center">{{ .No }}</td>
-            <td class="border px-4 py-2 text-center">{{.InvoiceNo}}</td>
             <td class="border px-4 py-2 text-center">{{ .DateCrDr }}</td>
+            <td class="border px-4 py-2 text-center">{{.InvoiceNo}}</td>
             <td class="border px-4 py-2 text-center">{{ .TypeOfSupplier }}</td>
             <td class="border px-4 py-2 text-center">
               {{ .TaxIdentificationNo }}

@@ -107,7 +107,13 @@ func (r *SaleController) Filter(ctx http.Context) http.Response {
 
 	if err := query.Get(&sales); err != nil {
 		return ctx.Response().Json(http.StatusInternalServerError, http.Json{
-			"error": "Failed to fetch sales: " + err.Error(),
+			"message": "Failed to fetch sales: ",
+			"error":   err.Error(),
+		})
+	}
+	if len(sales) == 0 {
+		return ctx.Response().Json(http.StatusNotFound, http.Json{
+			"message": "No sales found for the specified date range",
 		})
 	}
 

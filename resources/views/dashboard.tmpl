@@ -1,50 +1,41 @@
 {{define "dashboard.tmpl"}}
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="en">
-
-</html>
-<head>
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Cambodia Tax Portal</title>
     <link rel="preconnect" href="https://fonts.bunny.net" />
-    <link href="https://fonts.bunny.net/css?family=figtree:400,600&display=swap" rel="stylesheet" />
+    <link
+      href="https://fonts.bunny.net/css?family=figtree:400,600&display=swap"
+      rel="stylesheet"
+    />
     <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="antialiased font-sans p-6">
+  </head>
+  <body class="antialiased font-sans p-6 bg-gray-50">
     <h1 class="text-3xl font-bold mb-6">Cambodia Tax Portal</h1>
-    <div class="mb-2 flex items-center justify-between">
-        <div>
-            <h2 class="text-2xl font-semibold mb-2">Dashboard</h2>
-            <p class="text-gray-600">Welcome to the Cambodia Tax Portal. Use the navigation to access different sections.</p>
-        </div>
-        <div>
-            <a class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 mr-2" href="/sale">View Sales Report</a>
-            <a class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700" href="/export">Export Data</a>
-        </div>
+    <div>
+      <ul class="space-y-2">
+        <li>
+          <a href="/sale" class="text-blue-700 hover:underline">Sale Report</a>
+        </li>
+        <li>
+          <a href="/salecrdr" class="text-blue-700 hover:underline"
+            >Sale CR DR Report</a
+          >
+        </li>
+        <li>
+          <a href="/purchase" class="text-blue-700 hover:underline"
+            >Purchase Report</a
+          >
+        </li>
+        <li>
+          <a href="/purchasecrdr" class="text-blue-700 hover:underline"
+            >Purchase CR DR Report</a
+          >
+        </li>
+      </ul>
     </div>
-    <div class="mt-6">
-        <h3 class="text-xl font-semibold mb-4">Recent Activity</h3>
-        <ul class="list-disc pl-5 space-y-2">
-            <li>Sales report generated on {{ .LastReportDate }}</li>
-            <li>New tax regulations updated on {{ .LastUpdateDate }}</li>
-            <li>System maintenance scheduled for next week</li>
-        </ul>
-    </div>
-    <div class="mt-6">
-        <h3 class="text-xl font-semibold mb-4">Quick Links</h3>
-        <ul class="list-disc pl-5 space-y-2">
-            <li><a href="/sale" class="text-blue-600 hover:underline">View Sales Report</a></li>
-            <li><a href="/tax-regulations" class="text-blue-600 hover:underline">Tax Regulations</a></li>
-            <li><a href="/contact-support" class="text-blue-600 hover:underline">Contact Support</a></li>
-        </ul>
-    </div>
-    <div class="mt-6">
-        <h3 class="text-xl font-semibold mb-4">Notifications</h3>
-        <p class="text-gray-600">You have no new notifications.</p>
-
-
-    </div>
-</body>
+  </body>
 </html>
-{{end}}
+{{ end }}

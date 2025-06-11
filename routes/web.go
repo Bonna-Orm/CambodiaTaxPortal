@@ -28,4 +28,5 @@ func Web() {
 	facades.Route().Get("/salecrdr", saleCrDrController.Index)
 	facades.Route().Post("/salecrdr", saleCrDrController.Store)
 	facades.Route().Get("/export_salecrdr", controllers.NewSaleCrDrExportController().SaleCrDrExportExcel)
+	facades.Route().Get("/salescrdr", controllers.NewSaleCrDrController().FilterSaleCrDr)
 }

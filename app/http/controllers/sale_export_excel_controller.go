@@ -58,6 +58,11 @@ func (r *ExportController) ExportExcel(ctx http.Context) http.Response {
 		})
 
 	}
+	if len(sales) == 0 {
+		return ctx.Response().Status(404).Json(http.Json{
+			"message": "No sales found for the specified date range",
+		})
+	}
 	// Test Return Data Json with Postman
 	//return ctx.Response().Json(http.StatusOK, sales)
 
