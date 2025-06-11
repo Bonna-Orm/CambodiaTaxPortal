@@ -3,6 +3,8 @@ package controllers
 import (
 	"CambodiaTaxPortal/app/models"
 
+	"time"
+
 	"github.com/goravel/framework/contracts/http"
 	"github.com/goravel/framework/facades"
 )
@@ -43,83 +45,78 @@ func (r *SaleController) Store(ctx http.Context) http.Response {
 	return ctx.Response().Redirect(http.StatusFound, "/sale")
 }
 
-// Show retrieves a sale by ID
-func (r *SaleController) Show(ctx http.Context) http.Response {
-	id := ctx.Request().Route("id")
-	var sale models.Sale
-	if err := facades.Orm().Query().Where("id", id).First(&sale); err != nil {
-		return ctx.Response().Json(http.StatusNotFound, http.Json{"error": "Sale not found"})
-	}
-	return ctx.Response().Json(http.StatusOK, sale)
-}
+// Filter retrieves sales by date
+// func (r *SaleController) Filter(ctx http.Context) http.Response {
+// 	startDate := ctx.Request().Query("start_date")
+// 	endDate := ctx.Request().Query("end_date")
 
-// Update modifies an existing sale by ID
-func (r *SaleController) Update(ctx http.Context) http.Response {
-	id := ctx.Request().Route("id")
-	var sale models.Sale
-	if err := facades.Orm().Query().Where("id", id).First(&sale); err != nil {
-		return ctx.Response().Json(http.StatusNotFound, http.Json{"error": "Sale not found"})
-	}
-	if err := ctx.Request().Bind(&sale); err != nil {
-		return ctx.Response().Json(http.StatusBadRequest, http.Json{"error": "Invalid sale data: " + err.Error()})
-	}
-	if err := facades.Orm().Query().Save(&sale); err != nil {
-		return ctx.Response().Json(http.StatusInternalServerError, http.Json{"error": "Failed to update sale: " + err.Error()})
-	}
-	return ctx.Response().Json(http.StatusOK, sale)
-}
+// 	var sales []models.Sale
+// 	query := facades.Orm().Query()
 
-// Destroy deletes a sale by ID
-func (r *SaleController) Destroy(ctx http.Context) http.Response {
-	id := ctx.Request().Route("id")
-	_, err := facades.Orm().Query().Where("id", id).Delete(&models.Sale{})
-	if err != nil {
-		return ctx.Response().Json(http.StatusInternalServerError, http.Json{"error": "Failed to delete sale: " + err.Error()})
-	}
-	return ctx.Response().Json(http.StatusOK, http.Json{"message": "Sale deleted"})
-}
+// 	if startDate != "" && endDate != "" {
+// 		query = query.Where("date >= ? AND date <= ?", startDate, endDate)
+// 	} else if startDate != "" {
+// 		query = query.Where("date >= ?", startDate)
+// 	} else if endDate != "" {
+// 		query = query.Where("date <= ?", endDate)
+// 	}
 
-// CrudPage displays sales in CRUD page
-func (r *SaleController) CrudPage(ctx http.Context) http.Response {
+// 	if err := query.Get(&sales); err != nil {
+// 		return ctx.Response().Json(http.StatusInternalServerError, http.Json{
+// 			"error": "Failed to fetch sales: " + err.Error(),
+// 		})
+// 	}
+
+// 	return ctx.Response().View().Make("sale.tmpl", map[string]any{
+// 		"Sales": sales,
+// 	})
+// }
+
+func (r *SaleController) Filter(ctx http.Context) http.Response {
+	startDate := ctx.Request().Query("start_date")
+	endDate := ctx.Request().Query("end_date")
+
 	var sales []models.Sale
-	if err := facades.Orm().Query().Find(&sales); err != nil {
-		return ctx.Response().Json(http.StatusInternalServerError, http.Json{"error": "Failed to fetch sales: " + err.Error()})
-	}
-	return ctx.Response().View().Make("sale.tmpl", map[string]any{
-		"Sales": sales,
-	})
-}
+	query := facades.Orm().Query()
 
-// StoreOrDelete handles create or delete based on _method override
-func (r *SaleController) StoreOrDelete(ctx http.Context) http.Response {
-	if ctx.Request().Input("_method") == "DELETE" {
-		id := ctx.Request().Route("id")
-		_, err := facades.Orm().Query().Where("id", id).Delete(&models.Sale{})
-		if err != nil {
-			return ctx.Response().Json(http.StatusInternalServerError, http.Json{"error": "Failed to delete sale: " + err.Error()})
+	// Validate date format (YYYY-MM-DD)
+	const layout = "2006-01-02"
+	if startDate != "" {
+		if _, err := time.Parse(layout, startDate); err != nil {
+			return ctx.Response().Json(http.StatusBadRequest, http.Json{
+				"error": "Invalid start_date format. Use YYYY-MM-DD.",
+			})
 		}
-		return ctx.Response().Redirect(http.StatusFound, "/sale")
+	}
+	if endDate != "" {
+		if _, err := time.Parse(layout, endDate); err != nil {
+			return ctx.Response().Json(http.StatusBadRequest, http.Json{
+				"error": "Invalid end_date format. Use YYYY-MM-DD.",
+			})
+		}
 	}
 
-	var sale models.Sale
-	if err := ctx.Request().Bind(&sale); err != nil {
-		return ctx.Response().Json(http.StatusBadRequest, http.Json{"error": "Invalid sale data: " + err.Error()})
+	// Build query
+	if startDate != "" && endDate != "" {
+		query = query.Where("date >= ? AND date <= ?", startDate, endDate)
+	} else if startDate != "" {
+		query = query.Where("date >= ?", startDate)
+	} else if endDate != "" {
+		query = query.Where("date <= ?", endDate)
 	}
-	if err := facades.Orm().Query().Create(&sale); err != nil {
-		return ctx.Response().Json(http.StatusInternalServerError, http.Json{"error": "Failed to create sale: " + err.Error()})
-	}
-	return ctx.Response().Redirect(http.StatusFound, "/sale")
-}
 
-// Edit displays the edit page for a sale
-func (r *SaleController) Edit(ctx http.Context) http.Response {
-	id := ctx.Request().Route("id")
-	var sale models.Sale
-	err := facades.Orm().Query().Where("id", id).First(&sale)
-	if err != nil {
-		return ctx.Response().Json(http.StatusNotFound, http.Json{"error": "Sale not found"})
+	if err := query.Get(&sales); err != nil {
+		return ctx.Response().Json(http.StatusInternalServerError, http.Json{
+			"error": "Failed to fetch sales: " + err.Error(),
+		})
 	}
-	return ctx.Response().View().Make("edit.tmpl", http.Json{
-		"Sale": sale,
+
+	// Pass filter values back to the template for sticky form fields
+	return ctx.Response().View().Make("sale.tmpl", map[string]any{
+		"Sales":     sales,
+		"StartDate": startDate,
+		"EndDate":   endDate,
 	})
+	// Test return json with postman
+	//return ctx.Response().Json(http.StatusOK, sales)
 }

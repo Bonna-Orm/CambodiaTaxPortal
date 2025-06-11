@@ -150,7 +150,7 @@ func (r *ExportController) ExportExcel(ctx http.Context) http.Response {
 		})
 	}
 
-	filename := "export_" + time.Now().Format("20060102_150405") + ".xlsx"
+	filename := "export_sale_" + time.Now().Format("20060102_150405") + ".xlsx"
 	ctx.Response().Header("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 	ctx.Response().Header("Content-Disposition", "attachment; filename=\""+filename+"\"")
 	return ctx.Response().Data(
