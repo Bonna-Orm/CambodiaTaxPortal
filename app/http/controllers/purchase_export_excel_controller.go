@@ -1,0 +1,183 @@
+package controllers
+
+import (
+	"bytes"
+	"fmt"
+	"time"
+
+	"github.com/goravel/framework/contracts/http"
+	"github.com/goravel/framework/facades"
+	"github.com/xuri/excelize/v2"
+
+	"CambodiaTaxPortal/app/models"
+)
+
+type PurchaseExportController struct{}
+
+func NewPurchaseExportController() *PurchaseExportController {
+	return &PurchaseExportController{}
+}
+
+func (r *PurchaseExportController) PurchaseExportExcel(ctx http.Context) http.Response {
+	startDate := ctx.Request().Query("start_date")
+	endDate := ctx.Request().Query("end_date")
+
+	var purchases []models.Purchase
+	query := facades.Orm().Query()
+
+	// Optional: Validate date format
+	const layout = "2006-01-02"
+	if startDate != "" {
+		if _, err := time.Parse(layout, startDate); err != nil {
+			return ctx.Response().Status(400).Json(http.Json{
+				"error": "Invalid start date format. Use YYYY-MM-DD.",
+			})
+		}
+	}
+
+	if endDate != "" {
+		if _, err := time.Parse(layout, endDate); err != nil {
+			return ctx.Response().Status(400).Json(http.Json{
+				"error": "Invalid end date format. Use YYYY-MM-DD.",
+			})
+		}
+	}
+
+	// Filter by date if provided
+	if startDate != "" && endDate != "" {
+		query = query.Where("date_purchase >= ? AND date_purchase <= ?", startDate, endDate)
+	} else if startDate != "" {
+		query = query.Where("date_purchase >= ?", startDate)
+	} else if endDate != "" {
+		query = query.Where("date_purchase <= ?", endDate)
+	}
+	if err := query.Get(&purchases); err != nil {
+		return ctx.Response().Status(500).Json(http.Json{
+			"message": "Failed to fetch purchases",
+			"error":   err.Error(),
+		})
+
+	}
+	if len(purchases) == 0 {
+		return ctx.Response().Status(404).Json(http.Json{
+			"message": "No purchases found for the specified date range",
+		})
+	}
+	// Test Return Data Json with Postman
+	//return ctx.Response().Json(http.StatusOK, sales)
+
+	// if err := facades.Orm().Query().Find(&sales); err != nil {
+	// 	return ctx.Response().Status(500).Json(http.Json{
+	// 		"message": "Failed to fetch sales",
+	// 		"error":   err.Error(),
+	// 	})
+	// }
+
+	file := excelize.NewFile()
+	index, err := file.NewSheet("Sheet1")
+	if err != nil {
+		return ctx.Response().Status(500).Json(http.Json{
+			"message": "Failed to create sheet",
+			"error":   err.Error(),
+		})
+	}
+
+	// Define a style for header alignment (centered)
+	headerStyle, err := file.NewStyle(&excelize.Style{
+		Alignment: &excelize.Alignment{
+			Horizontal: "center",
+			Vertical:   "center",
+			WrapText:   true,
+		},
+		Font: &excelize.Font{
+			Bold:   true,
+			Family: "Khmer OS Siemreap", // Supports Khmer and English
+			Size:   11,
+		},
+		Fill: excelize.Fill{
+			Type:    "pattern",
+			Color:   []string{"#4CAF50"}, // Green background
+			Pattern: 1,
+		},
+		Border: []excelize.Border{
+			{Type: "left", Color: "000000", Style: 1},
+			{Type: "top", Color: "000000", Style: 1},
+			{Type: "right", Color: "000000", Style: 1},
+			{Type: "bottom", Color: "000000", Style: 1},
+		},
+	})
+	if err == nil {
+		// Apply the style to the header area (A1:T2)
+		file.SetCellStyle("Sheet1", "A2", "K3", headerStyle)
+	}
+
+	// Merge cells for grouped and single headers
+	file.MergeCell("sheet1", "A2", "A3")
+	file.MergeCell("sheet1", "B2", "B3")
+	file.MergeCell("sheet1", "C2", "C3")
+	file.MergeCell("sheet1", "D2", "G2")
+	file.MergeCell("sheet1", "H2", "H3")
+	file.MergeCell("sheet1", "I2", "I3")
+	file.MergeCell("sheet1", "J2", "J3")
+	file.MergeCell("sheet1", "K2", "K3")
+
+	// Set main headers (row 1)
+	file.SetCellValue("Sheet1", "A2", "ល.រ*\nNo.*")
+	file.SetCellValue("Sheet1", "B2", "កាលបរិច្ឆេទ*\nDate*")
+	file.SetCellValue("Sheet1", "C2", "លេខវិក្កយបត្រ ឬ ប្រតិវេទន៍គយ*\nInvoice no./customs declaration no.")
+	file.SetCellValue("Sheet1", "D2", "អ្នកផ្គត់ផ្គង់\nSupplier")
+	file.SetCellValue("Sheet1", "H2", "ប្រភេទផ្គត់ផ្គង់ទំនិញ* ឬសេវាកម្ម\nType of goods supplied / services rendered*")
+	file.SetCellValue("Sheet1", "I2", "តម្លៃសរុបជាប់ អតប*\nTotal amount include VAT*")
+	file.SetCellValue("Sheet1", "J2", "តម្លៃសរុបមិនជាប់ អតប ឬ អតប អត្រា ០%\nTotal amount exclude VAT / VAT 0%")
+	file.SetCellValue("Sheet1", "K2", "បរិយាយ*\nDescription*")
+
+	// Set sub-headers for "Supplier" (row 2)
+	file.SetCellValue("Sheet1", "D3", "ប្រភេទ*\nType of Supplier*")
+	file.SetCellValue("Sheet1", "E3", "លេខសម្គាល់*\nTax identification no.")
+	file.SetCellValue("Sheet1", "F3", "ឈ្មោះ(ខ្មែរ)\nName (Khmer)")
+	file.SetCellValue("Sheet1", "G3", "ឈ្មោះ(ឡាតាំង)\nName (Latin)")
+
+	// Set row heights for better appearance
+	file.SetRowHeight("Sheet1", 2, 50)
+	file.SetRowHeight("Sheet1", 3, 50)
+
+	// Fill data rows
+	for i, purchase := range purchases {
+		row := i + 4
+		file.SetCellValue("Sheet1", fmt.Sprintf("A%d", row), purchase.No)
+		file.SetCellValue("Sheet1", fmt.Sprintf("B%d", row), purchase.DatePurchase)
+		file.SetCellValue("Sheet1", fmt.Sprintf("C%d", row), purchase.InvoiceNo)
+		file.SetCellValue("Sheet1", fmt.Sprintf("D%d", row), purchase.TypeOfSupplier)
+		file.SetCellValue("Sheet1", fmt.Sprintf("E%d", row), purchase.TaxIdentificationNo)
+		file.SetCellValue("Sheet1", fmt.Sprintf("F%d", row), purchase.SupplierNameKh)
+		file.SetCellValue("Sheet1", fmt.Sprintf("G%d", row), purchase.SupplierName)
+		file.SetCellValue("Sheet1", fmt.Sprintf("H%d", row), purchase.TypeOfGoodsSupplier)
+		file.SetCellValue("Sheet1", fmt.Sprintf("I%d", row), purchase.TotalAmountInclVat)
+		file.SetCellValue("Sheet1", fmt.Sprintf("J%d", row), purchase.TotalAmountExclVat)
+		file.SetCellValue("Sheet1", fmt.Sprintf("K%d", row), purchase.Description)
+	}
+
+	file.SetActiveSheet(index)
+
+	// Write to buffer (no temp file needed)
+	var buf bytes.Buffer
+	if err := file.Write(&buf); err != nil {
+		return ctx.Response().Status(500).Json(http.Json{
+			"message": "Failed to write file",
+			"error":   err.Error(),
+		})
+	}
+
+	filename := "export_purchase_" + time.Now().Format("20060102_150405") + ".xlsx"
+	ctx.Response().Header("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+	ctx.Response().Header("Content-Disposition", "attachment; filename=\""+filename+"\"")
+	return ctx.Response().Data(
+		http.StatusOK,
+		"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+		buf.Bytes(),
+	)
+}
+
+// func itoa(i int) string {
+// 	return fmt.Sprintf("%d", i)
+// }
