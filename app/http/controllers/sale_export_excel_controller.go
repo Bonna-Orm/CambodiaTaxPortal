@@ -12,13 +12,13 @@ import (
 	"CambodiaTaxPortal/app/models"
 )
 
-type ExportController struct{}
+type SaleExportController struct{}
 
-func NewExportController() *ExportController {
-	return &ExportController{}
+func NewSaleExportController() *SaleExportController {
+	return &SaleExportController{}
 }
 
-func (r *ExportController) ExportExcel(ctx http.Context) http.Response {
+func (r *SaleExportController) SaleExportExcel(ctx http.Context) http.Response {
 	startDate := ctx.Request().Query("start_date")
 	endDate := ctx.Request().Query("end_date")
 
@@ -127,8 +127,6 @@ func (r *ExportController) ExportExcel(ctx http.Context) http.Response {
 	file.MergeCell("sheet1", "P2", "P3")
 	file.MergeCell("sheet1", "Q2", "Q3")
 	file.MergeCell("sheet1", "R2", "R3")
-	file.MergeCell("sheet1", "S2", "S3")
-	file.MergeCell("sheet1", "T2", "T3")
 
 	// Set main headers (row 1)
 	file.SetCellValue("Sheet1", "A2", "ល.រ*\nNo.*")
@@ -146,8 +144,6 @@ func (r *ExportController) ExportExcel(ctx http.Context) http.Response {
 	file.SetCellValue("Sheet1", "P2", "វិស័យ\nSector")
 	file.SetCellValue("Sheet1", "Q2", "លេខឥណទានរតនាគារជាតិ\nTreasury credit note no.")
 	file.SetCellValue("Sheet1", "R2", "បរិយាយ*\nDescription*")
-	file.SetCellValue("Sheet1", "S2", "Create At")
-	file.SetCellValue("Sheet1", "T2", "Update At")
 
 	// Set sub-headers for "Customer" (row 2)
 	file.SetCellValue("Sheet1", "D3", "ប្រភេទ*\nType of customer*")
@@ -180,8 +176,6 @@ func (r *ExportController) ExportExcel(ctx http.Context) http.Response {
 		file.SetCellValue("Sheet1", fmt.Sprintf("P%d", row), sale.Sector)                        // Sector
 		file.SetCellValue("Sheet1", fmt.Sprintf("Q%d", row), sale.TreasuryCreditNoteNo)          // Treasury credit note no.
 		file.SetCellValue("Sheet1", fmt.Sprintf("R%d", row), sale.Description)
-		file.SetCellValue("Sheet1", fmt.Sprintf("S%d", row), sale.CreatedAt.String())
-		file.SetCellValue("Sheet1", fmt.Sprintf("T%d", row), sale.UpdatedAt.String())
 	}
 
 	file.SetActiveSheet(index)

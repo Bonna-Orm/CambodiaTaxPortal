@@ -13,11 +13,11 @@ import (
 
 type SaleCrDrExportController struct{}
 
-func NewSaleCrDrExportController() *ExportController {
-	return &ExportController{}
+func NewSaleCrDrExportController() *SaleCrDrExportController {
+	return &SaleCrDrExportController{}
 }
 
-func (r *ExportController) SaleCrDrExportExcel(ctx http.Context) http.Response {
+func (r *SaleCrDrExportController) SaleCrDrExportExcel(ctx http.Context) http.Response {
 	start_date := ctx.Request().Query("start_date")
 	end_date := ctx.Request().Query("end_date")
 

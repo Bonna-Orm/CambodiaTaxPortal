@@ -16,6 +16,7 @@ func (kernel Kernel) Migrations() []schema.Migration {
 		&migrations.M20240915060148CreateUsersTable{},
 		&migrations.M20250606045825CreateSaleTable{},
 		&migrations.M20250610010649CreateSalecrdrTable{},
+		&migrations.M20250612074623CreatePurchaseTable{},
 	}
 }
 

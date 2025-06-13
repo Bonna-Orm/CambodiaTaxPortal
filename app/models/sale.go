@@ -1,11 +1,15 @@
 package models
 
-import "github.com/goravel/framework/support/carbon"
+import (
+	"time"
+
+	"github.com/goravel/framework/support/carbon"
+)
 
 type Sale struct {
 	Id                            uint            `gorm:"primaryKey" json:"id"`
 	No                            string          `gorm:"column:no" json:"no"`
-	Date                          string          `gorm:"column:date" json:"date"`
+	Date                          time.Time       `gorm:"column:date" json:"date"`
 	InvoiceNo                     string          `gorm:"column:invoice_no" json:"invoice_no"`
 	TypeOfCustomer                string          `gorm:"column:type_of_customer" json:"type_of_customer"`
 	TaxIdentificationNo           string          `gorm:"column:tax_identification_no" json:"tax_identification_no"`

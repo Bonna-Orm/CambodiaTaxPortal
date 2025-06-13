@@ -36,7 +36,7 @@ func (r *M20250606045825CreateSaleTable) Up() error {
 			table.String("sector", 100).Nullable()
 			table.String("treasury_credit_note_no", 50).Nullable()
 			table.String("description", 255).Nullable()
-			table.Timestamps()
+			table.TimestampsTz()
 		})
 	}
 

@@ -42,7 +42,29 @@ func (r *SaleController) Store(ctx http.Context) http.Response {
 			"error": "Failed to create sale: " + err.Error(),
 		})
 	}
-	return ctx.Response().Redirect(http.StatusFound, "/sale")
+	// Directly To Page Sale
+	//return ctx.Response().Redirect(http.StatusFound, "/sale")
+
+	return ctx.Response().Json(http.StatusCreated, http.Json{
+		"message": "Sale created successfully",
+	})
+}
+
+// Edit retrieves a sale by ID for editing
+func (r *SaleController) Edit(ctx http.Context) http.Response {
+	id := ctx.Request().Bind("id")
+
+	var sale models.Sale
+	if err := facades.Orm().Query().Where("id = ?", id).First(&sale); err != nil {
+		return ctx.Response().Json(http.StatusNotFound, http.Json{
+			"error": "Sale not found: " + err.Error(),
+		})
+	}
+
+	return ctx.Response().Json(http.StatusOK, http.Json{
+		"message": "Sale Edit successfully",
+		"Sale":    sale,
+	})
 }
 
 // Filter retrieves sales by date
@@ -72,6 +94,7 @@ func (r *SaleController) Store(ctx http.Context) http.Response {
 // 	})
 // }
 
+// Filter retrieves sales by date range
 func (r *SaleController) Filter(ctx http.Context) http.Response {
 	startDate := ctx.Request().Query("start_date")
 	endDate := ctx.Request().Query("end_date")
