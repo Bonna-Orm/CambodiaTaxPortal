@@ -107,8 +107,8 @@ func (r *SaleExportController) SaleExportExcel(ctx http.Context) http.Response {
 		},
 	})
 	if err == nil {
-		// Apply the style to the header area (A1:T2)
-		file.SetCellStyle("Sheet1", "A2", "T3", headerStyle)
+		// Apply the style to the header area (A1:R2)
+		file.SetCellStyle("Sheet1", "A2", "R3", headerStyle)
 	}
 
 	// Merge cells for grouped and single headers
